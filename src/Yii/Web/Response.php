@@ -7,11 +7,13 @@
 
 namespace Yii2tech\Illuminate\Yii\Web;
 
+use Illuminate\Http\JsonResponse as IlluminateJsonResponse;
 use Illuminate\Http\Response as IlluminateResponse;
 use Symfony\Component\HttpFoundation\Cookie;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\web\HeadersAlreadySentException;
+use Yii2tech\Illuminate\Http\EmptyResponse;
 
 /**
  * Response fills up Laravel HTTP response instead of sending itself back to the user agent.
@@ -54,15 +56,15 @@ use yii\web\HeadersAlreadySentException;
 class Response extends \yii\web\Response
 {
     /**
-     * @var \Illuminate\Http\Response|null related Laravel response.
+     * @var \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|null related Laravel response.
      */
     private $_illuminateResponse;
 
     /**
      * @param  bool  $create whether to create a response, if it is empty.
-     * @return \Illuminate\Http\Response|null
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|null
      */
-    public function getIlluminateResponse(bool $create = false): ?IlluminateResponse
+    public function getIlluminateResponse(bool $create = false)
     {
         if ($create && $this->_illuminateResponse === null) {
             $this->_illuminateResponse = $this->createIlluminateResponse();
@@ -72,10 +74,10 @@ class Response extends \yii\web\Response
     }
 
     /**
-     * @param  \Illuminate\Http\Response|null  $illuminateResponse
+     * @param  \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|null  $illuminateResponse
      * @return static reference.
      */
-    public function setIlluminateResponse(?IlluminateResponse $illuminateResponse): self
+    public function setIlluminateResponse($illuminateResponse = null): self
     {
         $this->_illuminateResponse = $illuminateResponse;
 
@@ -90,6 +92,26 @@ class Response extends \yii\web\Response
     protected function createIlluminateResponse(): IlluminateResponse
     {
         return \Illuminate\Container\Container::getInstance()->make(IlluminateResponse::class);
+    }
+
+    /**
+     * Creates default {@see $illuminateResponse} instance.
+     *
+     * @return \Illuminate\Http\JsonResponse Laravel response instance.
+     */
+    protected function createIlluminateJsonResponse(): IlluminateJsonResponse
+    {
+        return \Illuminate\Container\Container::getInstance()->make(IlluminateJsonResponse::class);
+    }
+
+    /**
+     * Creates default {@see $illuminateResponse} instance.
+     *
+     * @return EmptyResponse Laravel response instance.
+     */
+    protected function createIlluminateEmptyResponse(): EmptyResponse
+    {
+        return \Illuminate\Container\Container::getInstance()->make(EmptyResponse::class);
     }
 
     /**
@@ -125,7 +147,13 @@ class Response extends \yii\web\Response
             // avoid usage of response bridge for file sending, since it may cause PHP memory error.
             $response = $this->getIlluminateResponse();
             if ($response === null) {
-                $this->setIlluminateResponse($this->createIlluminateResponse());
+                if ($this->format === self::FORMAT_JSON && $this->data !== null) {
+                    $this->setIlluminateResponse($this->createIlluminateJsonResponse());
+                } elseif($this->content !== null) {
+                    $this->setIlluminateResponse($this->createIlluminateResponse());
+                } else {
+                    $this->setIlluminateResponse($this->createIlluminateEmptyResponse());
+                }
             }
         }
 
@@ -201,7 +229,11 @@ class Response extends \yii\web\Response
         }
 
         if ($this->stream === null) {
-            $response->setContent($this->content);
+            if ($this->format === self::FORMAT_JSON && $this->data !== null) {
+                $response->setData($this->data);
+            } elseif ($this->content !== null) {
+                $response->setContent($this->content);
+            }
 
             return;
         }

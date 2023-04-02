@@ -213,9 +213,9 @@ class YiiApplicationMiddleware
      * Runs Yii application from the given entry PHP script.
      *
      * @param  string|null  $entryScript path to Yii application entry script relative to the project base path.
-     * @return \Illuminate\Http\Response HTTP response instance.
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse HTTP response instance.
      */
-    protected function runYii(?string $entryScript = null): Response
+    protected function runYii(?string $entryScript = null)
     {
         if ($entryScript === null) {
             $entryScript = $this->defaultEntryScript;
@@ -260,9 +260,9 @@ class YiiApplicationMiddleware
      * @see \Yii2tech\Illuminate\Yii\Web\Response
      * @see DummyResponse
      *
-     * @return \Illuminate\Http\Response HTTP response instance.
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse HTTP response instance.
      */
-    protected function createResponse(): Response
+    protected function createResponse()
     {
         if (headers_sent()) {
             $this->cleanup();
