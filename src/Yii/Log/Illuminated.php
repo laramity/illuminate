@@ -60,7 +60,7 @@ trait Illuminated
      */
     protected function defaultIlluminateLogger(): LoggerInterface
     {
-        return \Illuminate\Support\Facades\Log::getFacadeRoot();
+        return \Illuminate\Support\Facades\Log::getFacadeRoot()->channel('yii');
     }
 
     /**
