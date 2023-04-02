@@ -2,9 +2,7 @@
 <phpunit bootstrap="./tests/bootstrap.php"
 		 colors="true"
 		 backupGlobals="false"
-		 backupStaticProperties="false"
 		 processIsolation="false"
-		 cacheDirectory=".phpunit.cache"
 		 stopOnError="false"
 		 stopOnFailure="false">
 	<testsuites>
