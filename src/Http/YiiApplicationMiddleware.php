@@ -8,14 +8,12 @@
 namespace Yii2tech\Illuminate\Http;
 
 use Closure;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as IlluminateApplication;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminatech\ArrayFactory\FactoryContract;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Yii;
 use yii\web\HttpException as YiiHttpException;
 use yii\base\ExitException as YiiExitException;
+use Yii2tech\Illuminate\YiiApplicationHelper;
 
 /**
  * YiiApplicationMiddleware is a middleware, which processing Yii web application.
@@ -52,7 +50,7 @@ use yii\base\ExitException as YiiExitException;
  *     ->fallback();
  * ```
  *
- * Each middleware instance is automatically configured from the configuration key 'yii.middleware' using [array factory](https://github.com/illuminatech/array-factory).
+ * Each middleware instance is automatically configured from the configuration key 'yii.yii' using [array factory](https://github.com/illuminatech/array-factory).
  *
  * @see \Illuminatech\ArrayFactory\FactoryContract
  * @see \Yii2tech\Illuminate\Yii\Web\Response
@@ -64,76 +62,35 @@ use yii\base\ExitException as YiiExitException;
 class YiiApplicationMiddleware
 {
     /**
-     * @var string default path to Yii application entry script relative to the project base path.
+     * @var string|null default path to Yii application entry script relative to the project base path.
      * This value will be used only in case entry script is not specified as a middleware parameter.
      */
-    public $defaultEntryScript = 'legacy/web/index.php';
-
-    /**
-     * @var string|null path to bootstrap file, which should be included before defining constants and including `Yii.php`.
-     */
-    public $bootstrap;
-
-    /**
-     * @var array|null array configuration for Yii DI container to be applied during Yii bootstrap.
-     * If not set - container will not be explicitly setup.
-     * @see FactoryContract::make()
-     *
-     * Example:
-     *
-     * ```php
-     * [
-     *     '__class' => Yii2tech\Illuminate\Yii\Di\Container::class,
-     * ]
-     * ```
-     */
-    public $container;
-
-    /**
-     * @var array|null array configuration for Yii logger to be applied during Yii bootstrap.
-     * If not set - logger will not be explicitly setup.
-     * @see FactoryContract::make()
-     *
-     * Example:
-     *
-     * ```php
-     * [
-     *     '__class' => Yii2tech\Illuminate\Yii\Log\Logger::class,
-     * ]
-     * ```
-     */
-    public $logger;
+    public ?string $defaultEntryScript = 'legacy/web/index.php';
 
     /**
      * @var bool whether to perform cleanup of Yii application.
      */
-    public $cleanup = true;
+    public bool $cleanup = true;
 
     /**
-     * @var \Illuminate\Contracts\Foundation\Application Laravel application instance.
+     * @var IlluminateApplication Laravel application instance.
      */
-    protected $app;
+    protected IlluminateApplication $app;
+
+    protected YiiApplicationHelper $yiiHelper;
 
     /**
      * Constructor.
      *
-     * @param  Application  $app Laravel application instance.
+     * @param IlluminateApplication $app Laravel application instance.
      */
-    public function __construct(Application $app)
+    public function __construct(IlluminateApplication $app)
     {
         $this->app = $app;
 
-        $this->getFactory()->configure($this, $this->app->get('config')->get('yii.middleware', []));
-    }
+        $this->yiiHelper = new YiiApplicationHelper($this->app);
 
-    /**
-     * Returns related array factory for components creation and configuration.
-     *
-     * @return FactoryContract array factory instance.
-     */
-    public function getFactory(): FactoryContract
-    {
-        return $this->app->make(FactoryContract::class);
+        $this->yiiHelper->getFactory()->configure($this, $this->app->get('config')->get('yii.yii.middleware', []));
     }
 
     /**
@@ -146,7 +103,7 @@ class YiiApplicationMiddleware
      */
     public function handle(Request $request, Closure $next, ?string $entryScript = null)
     {
-        $this->bootstrapYii();
+        $this->yiiHelper->bootstrapYii();
 
         try {
             return $this->runYii($entryScript);
@@ -162,50 +119,6 @@ class YiiApplicationMiddleware
         } catch (YiiExitException $e) {
             // In case Yii requests application termination - request is considered as handled
             return $this->createResponse();
-        }
-    }
-
-    /**
-     * Makes preparations for Yii application run.
-     */
-    protected function bootstrapYii()
-    {
-        if ($this->bootstrap) {
-            require $this->bootstrap;
-        }
-
-        defined('YII_ENABLE_ERROR_HANDLER') or define('YII_ENABLE_ERROR_HANDLER', false);
-
-        defined('YII_DEBUG') or define('YII_DEBUG', $this->app->get('config')->get('app.debug', false));
-
-        if (! defined('YII_ENV')) {
-            $environment = $this->app->get('config')->get('app.env', 'production');
-            switch ($environment) {
-                case 'production':
-                    $environment = 'prod';
-                    break;
-                case 'local':
-                case 'development':
-                    $environment = 'dev';
-                    break;
-                case 'testing':
-                    $environment = 'test';
-                    break;
-            }
-
-            define('YII_ENV', $environment);
-        }
-
-        if (! class_exists('Yii')) {
-            require $this->app->make('path.base').'/vendor/yiisoft/yii2/Yii.php';
-        }
-
-        if ($this->container) {
-            Yii::$container = $this->getFactory()->make($this->container);
-        }
-
-        if ($this->logger) {
-            Yii::setLogger($this->getFactory()->make($this->logger));
         }
     }
 
@@ -234,21 +147,8 @@ class YiiApplicationMiddleware
     protected function cleanup()
     {
         if ($this->cleanup) {
-            $this->terminateYii();
+            $this->yiiHelper->terminateYii();
         }
-    }
-
-    /**
-     * Preforms clean up after running Yii application.
-     */
-    protected function terminateYii()
-    {
-        Yii::$classMap = [];
-        Yii::$aliases = [];
-
-        Yii::setLogger(null);
-        Yii::$app = null;
-        Yii::$container = null;
     }
 
     /**

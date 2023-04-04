@@ -14,12 +14,18 @@ return [
     'middleware' => [
         'defaultEntryScript' => 'legacy/web/index.php',
         'cleanup' => true,
-        //'bootstrap' => 'config/bootstrap.php',
-        /*'container' => [
-            '__class' => Yii2tech\Illuminate\Yii\Di\Container::class,
-        ],*/
-        /*'logger' => [
-            '__class' => Yii2tech\Illuminate\Yii\Log\Logger::class,
-        ],*/
     ],
+
+//    'bootstrap' => 'config/bootstrap.php',
+//    'bootstrapAfterLoadYii' => false,
+
+//    'container' => [
+//        '__class' => Yii2tech\Illuminate\Yii\Di\Container::class,
+//    ],
+//
+    'debug' => (bool) env('YII_COMMON_DEBUG', false),
+//
+//    'logger' => [
+//        '__class' => Yii2tech\Illuminate\Yii\Log\Logger::class,
+//    ],
 ];

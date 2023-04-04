@@ -46,7 +46,7 @@ class YiiIlluminateServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__ . '/../config/yii.php' => $this->app->make('path.config').DIRECTORY_SEPARATOR.'yii.php',
+            __DIR__ . '/../config/yii/yii.php' => $this->app->make('path.config').DIRECTORY_SEPARATOR.'yii/yii.php',
         ], 'config');
 
         if (! class_exists(\InitialMigration::class)) {
