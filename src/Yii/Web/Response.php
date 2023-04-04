@@ -149,7 +149,7 @@ class Response extends \yii\web\Response
             if ($response === null) {
                 if ($this->format === self::FORMAT_JSON && $this->data !== null) {
                     $this->setIlluminateResponse($this->createIlluminateJsonResponse());
-                } elseif($this->content !== null) {
+                } elseif($this->content !== null || $this->data !== null) {
                     $this->setIlluminateResponse($this->createIlluminateResponse());
                 } else {
                     $this->setIlluminateResponse($this->createIlluminateEmptyResponse());

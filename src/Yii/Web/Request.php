@@ -48,7 +48,7 @@ class Request extends \yii\web\Request
      * @var bool whether to use CSRF generation/validation supplied by Laravel.
      * If enabled make sure {@see $csrfParam} is set to '_token'.
      */
-    public $useIlluminateCsrfValildation = false;
+    public $useIlluminateCsrfValidation = false;
 
     /**
      * @var \Illuminate\Http\Request related Laravel HTTP request.
@@ -243,7 +243,7 @@ class Request extends \yii\web\Request
      */
     public function getCsrfToken($regenerate = false)
     {
-        if (! $this->useIlluminateCsrfValildation) {
+        if (! $this->useIlluminateCsrfValidation) {
             return parent::getCsrfToken($regenerate);
         }
 
@@ -259,7 +259,7 @@ class Request extends \yii\web\Request
      */
     protected function loadCsrfToken()
     {
-        if (! $this->useIlluminateCsrfValildation) {
+        if (! $this->useIlluminateCsrfValidation) {
             return parent::loadCsrfToken();
         }
 
@@ -271,7 +271,7 @@ class Request extends \yii\web\Request
      */
     protected function generateCsrfToken()
     {
-        if (! $this->useIlluminateCsrfValildation) {
+        if (! $this->useIlluminateCsrfValidation) {
             return parent::generateCsrfToken();
         }
 
@@ -286,7 +286,7 @@ class Request extends \yii\web\Request
      */
     public function validateCsrfToken($clientSuppliedToken = null)
     {
-        if (! $this->useIlluminateCsrfValildation) {
+        if (! $this->useIlluminateCsrfValidation) {
             return parent::validateCsrfToken($clientSuppliedToken);
         }
 

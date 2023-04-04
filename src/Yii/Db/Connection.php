@@ -9,6 +9,8 @@ namespace Yii2tech\Illuminate\Yii\Db;
 
 use Illuminate\Database\Connection as LaravelConnection;
 use Illuminate\Support\Facades\DB;
+use Yii;
+use yii\db\Exception;
 
 /**
  * Connection allows usage of the Laravel DB connection for Yii one.
@@ -53,7 +55,31 @@ class Connection extends \yii\db\Connection
             return;
         }
 
-        $this->pdo = $this->getIlluminateConnection()->getPdo();
+        $this->dsn = 'laravel';
+
+        $token = 'Opening DB connection: ' . $this->dsn;
+        $enableProfiling = $this->enableProfiling;
+        try {
+            if ($this->enableLogging) {
+                Yii::info($token, __METHOD__);
+            }
+
+            if ($enableProfiling) {
+                Yii::beginProfile($token, __METHOD__);
+            }
+
+            $this->pdo = $this->getIlluminateConnection()->getPdo();
+
+            if ($enableProfiling) {
+                Yii::endProfile($token, __METHOD__);
+            }
+        } catch (\PDOException $e) {
+            if ($enableProfiling) {
+                Yii::endProfile($token, __METHOD__);
+            }
+
+            throw new Exception($e->getMessage(), $e->errorInfo, $e->getCode(), $e);
+        }
     }
 
     /**
@@ -68,6 +94,13 @@ class Connection extends \yii\db\Connection
         $this->getIlluminateConnection()->disconnect();
 
         $this->pdo = null;
+
+        parent::close();
+    }
+
+    public function getDriverName(): string
+    {
+        return $this->getIlluminateConnection()->getDriverName();
     }
 
     /**
