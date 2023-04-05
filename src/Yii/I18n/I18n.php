@@ -95,7 +95,7 @@ class I18n extends \yii\i18n\I18N
     public function translate($category, $message, $params, $language): string
     {
         if (in_array($category, $this->illuminateCategories, true)) {
-            return $this->getIlluminateTranslator()->get($category.'.'.$message, $params, $language);
+            return $this->getIlluminateTranslator()->get($category . '.' . $message, $params, $language);
         }
 
         return parent::translate($category, $message, $params, $language);
@@ -106,7 +106,7 @@ class I18n extends \yii\i18n\I18N
      */
     public function format($message, $params, $language): string
     {
-        $params = (array) $params;
+        $params = (array)$params;
 
         $message = parent::format($message, $params, $language);
 
@@ -137,7 +137,7 @@ class I18n extends \yii\i18n\I18N
 
         foreach ($params as $key => $value) {
             $message = str_replace(
-                [':'.$key, ':'.Str::upper($key), ':'.Str::ucfirst($key)],
+                [':' . $key, ':' . Str::upper($key), ':' . Str::ucfirst($key)],
                 [$value, Str::upper($value), Str::ucfirst($value)],
                 $message
             );

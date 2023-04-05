@@ -1,28 +1,37 @@
 {
     "name": "yii2tech/illuminate",
     "description": "Yii2 to Laravel Migration Package",
-    "keywords": ["yii2", "laravel", "illuminate", "migration", "switch"],
     "license": "BSD-3-Clause",
-    "support": {
-        "issues": "https://github.com/yii2tech/illuminate/issues",
-        "wiki": "https://github.com/yii2tech/illuminate/wiki",
-        "source": "https://github.com/yii2tech/illuminate"
-    },
+    "keywords": [
+        "yii2",
+        "laravel",
+        "illuminate",
+        "migration",
+        "switch"
+    ],
     "authors": [
         {
             "name": "Paul Klimov",
             "email": "klimov.paul@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/yii2tech/illuminate/issues",
+        "wiki": "https://github.com/yii2tech/illuminate/wiki",
+        "source": "https://github.com/yii2tech/illuminate"
+    },
     "require": {
         "php": ">=7.4",
         "ext-pdo": "*",
-        "yiisoft/yii2": "~2.0.14",
         "illuminate/console": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
         "illuminate/http": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
-        "illuminatech/array-factory": "^1.2.4"
+        "illuminatech/array-factory": "^1.2.4",
+        "yiisoft/yii2": "~2.0.14"
     },
     "require-dev": {
+        "enlightn/security-checker": "^1.10",
+        "ergebnis/composer-normalize": "^2.28",
+        "friendsofphp/php-cs-fixer": "^3.10",
         "illuminate/auth": "*",
         "illuminate/cache": "*",
         "illuminate/config": "*",
@@ -31,6 +40,9 @@
         "illuminate/hashing": "*",
         "illuminate/log": "*",
         "illuminate/translation": "*",
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "phpro/grumphp": "^1.13",
+        "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^7.5 || ^8.0 || ^9.3 || ^10.0.7"
     },
     "repositories": [
@@ -49,6 +61,13 @@
             "Yii2tech\\Illuminate\\Test\\": "tests"
         }
     },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "ergebnis/composer-normalize": true,
+            "phpro/grumphp": true
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
@@ -57,11 +76,6 @@
             "providers": [
                 "Yii2tech\\Illuminate\\YiiIlluminateServiceProvider"
             ]
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "yiisoft/yii2-composer": true
         }
     }
 }

@@ -1,0 +1,72 @@
+grumphp:
+  hooks_dir: ~
+  hooks_preset: local
+  stop_on_failure: false
+  ignore_unstaged_changes: false
+  hide_circumvention_tip: false
+  process_timeout: 300
+  parallel:
+    enabled: true
+    max_workers: 32
+  fixer:
+    enabled: true
+    fix_by_default: true
+  tasks:
+    composer_normalize:
+      indent_size: ~
+      indent_style: ~
+      no_update_lock: false
+      verbose: false
+    git_blacklist:
+      keywords:
+        - "exit;"
+        - "exit("
+        - "die("
+        - "var_dump("
+        - "print_r("
+        - "dd("
+        - "dump("
+      whitelist_patterns: [ ]
+      triggered_by: [ 'php' ]
+      regexp_type: G
+#      match_word: false
+    git_commit_message:
+      allow_empty_message: false
+      enforce_capitalized_subject: true
+      enforce_no_subject_punctuations: false
+      enforce_no_subject_trailing_period: true
+      enforce_single_lined_subject: true
+      type_scope_conventions: [ ]
+      max_body_width: 80
+      max_subject_width: 120
+      case_insensitive: true
+      multiline: true
+      additional_modifiers: ''
+    phpcsfixer:
+      allow_risky: ~
+      cache_file: ~
+      config: .php-cs-fixer.dist.php
+      rules: [ ]
+      using_cache: ~
+      config_contains_finder: true
+      verbose: true
+      diff: false
+      triggered_by: [ 'php' ]
+    phplint:
+      exclude: [ 'vendor' ]
+      jobs: ~
+      short_open_tag: false
+      ignore_patterns: [ ]
+      triggered_by: [ 'php' ]
+    phpstan:
+      autoload_file: ~
+      configuration: phpstan.neon.dist
+      level: null
+      force_patterns: [ ]
+      ignore_patterns: [ ]
+      triggered_by: [ 'php' ]
+      memory_limit: "-1"
+      use_grumphp_paths: true
+    securitychecker_enlightn:
+      lockfile: ./composer.lock
+      run_always: true

@@ -1,0 +1,26 @@
+includes:
+
+parameters:
+    parallel:
+        processTimeout: 1200.0
+
+    bootstrapFiles:
+        - vendor/yiisoft/yii2/Yii.php
+
+    stubFiles:
+        - phpstan-annotation.php.stub
+
+    paths:
+        - src
+        - config
+        - database
+
+    # The level 9 is the highest level
+    level: 5
+
+    ignoreErrors:
+
+    excludePaths:
+
+    checkMissingIterableValueType: false
+    reportUnmatchedIgnoredErrors: true

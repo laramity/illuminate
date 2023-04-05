@@ -152,12 +152,12 @@ class User extends \yii\web\User
             $id = $identity['id'];
             $attributes = $identity;
         } else {
-            throw new RuntimeException('Unable to convert identity from "'.print_r($identity, true).'"');
+            throw new RuntimeException('Unable to convert identity from "' . print_r($identity, true) . '"');
         }
 
         $identityClass = $this->identityClass;
-        if (! empty($attributes) && is_subclass_of($identityClass, BaseActiveRecord::class)) {
-            $record = new $identityClass;
+        if (!empty($attributes) && is_subclass_of($identityClass, BaseActiveRecord::class)) {
+            $record = new $identityClass();
             call_user_func([$identityClass, 'populateRecord'], $record, $attributes);
 
             return $record;

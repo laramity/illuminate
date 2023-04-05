@@ -41,19 +41,19 @@ class YiiIlluminateServiceProvider extends ServiceProvider
      */
     protected function registerPublications(): void
     {
-        if (! $this->app->runningInConsole()) {
+        if (!$this->app->runningInConsole()) {
             return;
         }
 
         $this->publishes([
-            __DIR__ . '/../config/yii/yii.php' => $this->app->make('path.config').DIRECTORY_SEPARATOR.'yii/yii.php',
+            __DIR__ . '/../config/yii/yii.php' => $this->app->make('path.config') . DIRECTORY_SEPARATOR . 'yii/yii.php',
         ], 'config');
 
-        if (! class_exists(\InitialMigration::class)) {
+        if (!class_exists(\InitialMigration::class)) {
             $timestamp = date('Y_m_d_His', time());
 
             $this->publishes([
-                __DIR__.'/../database/migrations/initial_migration.php.stub.php' => $this->app->databasePath().'/migrations/'.$timestamp.'_initial_migration.php',
+                __DIR__ . '/../database/migrations/initial_migration.php.stub.php' => $this->app->databasePath() . '/migrations/' . $timestamp . '_initial_migration.php',
             ], 'migrations');
         }
     }

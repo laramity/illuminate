@@ -207,7 +207,7 @@ class Request extends \yii\web\Request
                 throw new InvalidConfigException(get_class($this) . '::$cookieValidationKey must be configured with a secret key.');
             }
             foreach ($this->getIlluminateRequest()->cookies as $name => $value) {
-                if (! is_string($value)) {
+                if (!is_string($value)) {
                     continue;
                 }
                 $data = Yii::$app->getSecurity()->validateData($value, $this->cookieValidationKey);
@@ -243,7 +243,7 @@ class Request extends \yii\web\Request
      */
     public function getCsrfToken($regenerate = false)
     {
-        if (! $this->useIlluminateCsrfValidation) {
+        if (!$this->useIlluminateCsrfValidation) {
             return parent::getCsrfToken($regenerate);
         }
 
@@ -259,7 +259,7 @@ class Request extends \yii\web\Request
      */
     protected function loadCsrfToken()
     {
-        if (! $this->useIlluminateCsrfValidation) {
+        if (!$this->useIlluminateCsrfValidation) {
             return parent::loadCsrfToken();
         }
 
@@ -271,7 +271,7 @@ class Request extends \yii\web\Request
      */
     protected function generateCsrfToken()
     {
-        if (! $this->useIlluminateCsrfValidation) {
+        if (!$this->useIlluminateCsrfValidation) {
             return parent::generateCsrfToken();
         }
 
@@ -286,7 +286,7 @@ class Request extends \yii\web\Request
      */
     public function validateCsrfToken($clientSuppliedToken = null)
     {
-        if (! $this->useIlluminateCsrfValidation) {
+        if (!$this->useIlluminateCsrfValidation) {
             return parent::validateCsrfToken($clientSuppliedToken);
         }
 
@@ -316,7 +316,7 @@ class Request extends \yii\web\Request
      */
     private function validateCsrfTokenInternal($clientSuppliedToken, $trueToken): bool
     {
-        if (! is_string($clientSuppliedToken)) {
+        if (!is_string($clientSuppliedToken)) {
             return false;
         }
 

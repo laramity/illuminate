@@ -7,7 +7,7 @@
 
 namespace Yii2tech\Illuminate\Yii\Db;
 
-use Illuminate\Database\Connection as LaravelConnection;
+use Illuminate\Database\ConnectionInterface as LaravelConnection;
 use Illuminate\Support\Facades\DB;
 use Yii;
 use yii\db\Exception;
@@ -42,9 +42,9 @@ use yii\db\Exception;
 class Connection extends \yii\db\Connection
 {
     /**
-     * @var \Illuminate\Database\Connection Laravel DB connection instance.
+     * @var LaravelConnection|null Laravel DB connection instance.
      */
-    private $_illuminateConnection;
+    private ?LaravelConnection $_illuminateConnection = null;
 
     /**
      * {@inheritdoc}
@@ -103,10 +103,6 @@ class Connection extends \yii\db\Connection
         return $this->getIlluminateConnection()->getDriverName();
     }
 
-    /**
-     * @param  LaravelConnection  $connection Laravel DB connection to be used.
-     * @return static self reference.
-     */
     public function setIlluminateConnection(LaravelConnection $connection): self
     {
         $this->_illuminateConnection = $connection;
@@ -116,8 +112,6 @@ class Connection extends \yii\db\Connection
 
     /**
      * Returns Laravel DB connection instance.
-     *
-     * @return \Illuminate\Database\Connection connection instance.
      */
     public function getIlluminateConnection(): LaravelConnection
     {
@@ -130,8 +124,6 @@ class Connection extends \yii\db\Connection
 
     /**
      * Defines default Laravel connection.
-     *
-     * @return LaravelConnection Laravel connection instance.
      */
     protected function defaultIlluminateConnection(): LaravelConnection
     {

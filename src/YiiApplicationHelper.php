@@ -73,7 +73,7 @@ class YiiApplicationHelper
 
         defined('YII_DEBUG') or define('YII_DEBUG', $this->debug);
 
-        if (! defined('YII_ENV')) {
+        if (!defined('YII_ENV')) {
             $environment = $this->app->get('config')->get('app.env', 'production');
             switch ($environment) {
                 case 'production':

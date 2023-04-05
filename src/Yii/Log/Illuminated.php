@@ -26,9 +26,9 @@ use yii\log\Logger;
 trait Illuminated
 {
     /**
-     * @var \Illuminate\Log\Logger laravel logger instance.
+     * @var LoggerInterface laravel logger instance.
      */
-    private $_illuminateLogger;
+    private ?LoggerInterface $_illuminateLogger = null;
 
     /**
      * @return \Psr\Log\LoggerInterface

@@ -10,9 +10,10 @@ namespace Yii2tech\Illuminate\Http;
 use Closure;
 use Illuminate\Contracts\Foundation\Application as IlluminateApplication;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Yii;
-use yii\web\HttpException as YiiHttpException;
 use yii\base\ExitException as YiiExitException;
+use yii\web\HttpException as YiiHttpException;
 use Yii2tech\Illuminate\YiiApplicationHelper;
 
 /**
@@ -134,7 +135,7 @@ class YiiApplicationMiddleware
             $entryScript = $this->defaultEntryScript;
         }
 
-        $entryScript = $this->app->make('path.base').DIRECTORY_SEPARATOR.$entryScript;
+        $entryScript = $this->app->make('path.base') . DIRECTORY_SEPARATOR . $entryScript;
 
         require $entryScript;
 

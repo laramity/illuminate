@@ -51,7 +51,7 @@ class RenameNamespaceCommand extends Command
         $namespaceFrom = trim($this->option('from'), '\\');
         $namespaceTo = trim($this->option('to'), '\\');
 
-        if (! $this->confirmToProceed("Namespace '{$namespaceFrom}' will be changed to '{$namespaceTo}' will be replaced at '{$path}' files.")) {
+        if (!$this->confirmToProceed("Namespace '{$namespaceFrom}' will be changed to '{$namespaceTo}' will be replaced at '{$path}' files.")) {
             return;
         }
 
@@ -62,7 +62,7 @@ class RenameNamespaceCommand extends Command
             $totalCount++;
 
             if ($this->renameNamespace($file, $namespaceFrom, $namespaceTo)) {
-                $this->line('Modified: '.$file->getPathname());
+                $this->line('Modified: ' . $file->getPathname());
                 $modifiedCount++;
             }
         }
@@ -99,20 +99,20 @@ class RenameNamespaceCommand extends Command
     {
         $content = file_get_contents($file);
 
-        $newContent = preg_replace_callback('/^(namespace\\s+)(\\\\?'.preg_quote($namespaceFrom).')([^\\s]*;)(\\s*)$/m', function ($matches) use ($namespaceTo) {
-            return $matches[1].$namespaceTo.$matches[3].$matches[4];
+        $newContent = preg_replace_callback('/^(namespace\\s+)(\\\\?' . preg_quote($namespaceFrom) . ')([^\\s]*;)(\\s*)$/m', function ($matches) use ($namespaceTo) {
+            return $matches[1] . $namespaceTo . $matches[3] . $matches[4];
         }, $content);
 
-        $newContent = preg_replace_callback('/^(use\\s+)(\\\\?'.preg_quote($namespaceFrom).')([^\\s]*;)(\\s*)$/m', function ($matches) use ($namespaceTo) {
-            return $matches[1].$namespaceTo.$matches[3].$matches[4];
+        $newContent = preg_replace_callback('/^(use\\s+)(\\\\?' . preg_quote($namespaceFrom) . ')([^\\s]*;)(\\s*)$/m', function ($matches) use ($namespaceTo) {
+            return $matches[1] . $namespaceTo . $matches[3] . $matches[4];
         }, $newContent);
 
-        $newContent = preg_replace_callback('/(\\\\?)('.preg_quote($namespaceFrom).')(\\\\[^\\s]+::class)/m', function ($matches) use ($namespaceTo) {
-            return $matches[1].$namespaceTo.$matches[3];
+        $newContent = preg_replace_callback('/(\\\\?)(' . preg_quote($namespaceFrom) . ')(\\\\[^\\s]+::class)/m', function ($matches) use ($namespaceTo) {
+            return $matches[1] . $namespaceTo . $matches[3];
         }, $newContent);
 
-        $newContent = preg_replace_callback('/(@see \\\\?)('.preg_quote($namespaceFrom).')(\\\\[^\\s]+\\s+)/m', function ($matches) use ($namespaceTo) {
-            return $matches[1].$namespaceTo.$matches[3];
+        $newContent = preg_replace_callback('/(@see \\\\?)(' . preg_quote($namespaceFrom) . ')(\\\\[^\\s]+\\s+)/m', function ($matches) use ($namespaceTo) {
+            return $matches[1] . $namespaceTo . $matches[3];
         }, $newContent);
 
         if (sha1($content) !== sha1($newContent)) {
