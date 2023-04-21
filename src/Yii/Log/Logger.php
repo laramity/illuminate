@@ -52,7 +52,6 @@ class Logger extends \yii\log\Logger
         if (!is_string($message)) {
             // exceptions may not be serializable if in the call stack somewhere is a Closure
             if ($message instanceof \Throwable) {
-                $context['exception'] = $message;
                 $message = (string)$message;
             } else {
                 $message = VarDumper::export($message);
