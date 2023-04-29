@@ -9,3 +9,12 @@ namespace yii {
         public static $app;
     }
 }
+
+namespace {
+
+    use Illuminate\Log\Logger;
+
+    function logger(): Logger {
+        return new Logger(new \Monolog\Logger('test'));
+    }
+}

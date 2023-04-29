@@ -23,6 +23,8 @@ class YiiIlluminateServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->loadViewsFrom(dirname(__DIR__) . '/resources/views', 'illuminate');
+
         $this->registerPublications();
     }
 
