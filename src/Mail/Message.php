@@ -52,8 +52,6 @@ class Message extends Mailable
             }
         }
 
-        dump($this);
-
         return $this;
     }
 

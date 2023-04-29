@@ -289,7 +289,7 @@ class Message extends BaseMessage
         return $this;
     }
 
-    public function getTextBody(): string
+    public function getTextBody(): ?string
     {
         return $this->_text;
     }
@@ -306,7 +306,7 @@ class Message extends BaseMessage
         return $this;
     }
 
-    public function getHtmlBody(): string
+    public function getHtmlBody(): ?string
     {
         return $this->_html;
     }
