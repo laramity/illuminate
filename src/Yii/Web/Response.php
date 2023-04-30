@@ -14,6 +14,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\web\HeadersAlreadySentException;
 use Yii2tech\Illuminate\Http\EmptyResponse;
+use Yii2tech\Illuminate\Http\FileResponse;
 
 /**
  * Response fills up Laravel HTTP response instead of sending itself back to the user agent.
@@ -56,13 +57,13 @@ use Yii2tech\Illuminate\Http\EmptyResponse;
 class Response extends \yii\web\Response
 {
     /**
-     * @var \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|null related Laravel response.
+     * @var \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|null related Laravel response.
      */
     private $_illuminateResponse;
 
     /**
      * @param  bool  $create whether to create a response, if it is empty.
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|null
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|null
      */
     public function getIlluminateResponse(bool $create = false)
     {
@@ -74,7 +75,7 @@ class Response extends \yii\web\Response
     }
 
     /**
-     * @param  \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|null  $illuminateResponse
+     * @param  \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|null  $illuminateResponse
      * @return static reference.
      */
     public function setIlluminateResponse($illuminateResponse = null): self
@@ -102,6 +103,19 @@ class Response extends \yii\web\Response
     protected function createIlluminateJsonResponse(): IlluminateJsonResponse
     {
         return \Illuminate\Container\Container::getInstance()->make(IlluminateJsonResponse::class);
+    }
+
+    /**
+     * Creates default {@see $illuminateResponse} instance.
+     *
+     * @return FileResponse Binary file response instance.
+     */
+    protected function createIlluminateFileResponse(): FileResponse
+    {
+        $filePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('ybf');
+        file_put_contents($filePath, $this->content);
+
+        return \Illuminate\Container\Container::getInstance()->make(FileResponse::class, ['file' => $filePath]);
     }
 
     /**
@@ -149,6 +163,8 @@ class Response extends \yii\web\Response
             if ($response === null) {
                 if ($this->format === self::FORMAT_JSON && $this->data !== null) {
                     $this->setIlluminateResponse($this->createIlluminateJsonResponse());
+                } elseif ($this->format === self::FORMAT_RAW) {
+                    $this->setIlluminateResponse($this->createIlluminateFileResponse());
                 } elseif ($this->content !== null || $this->data !== null) {
                     $this->setIlluminateResponse($this->createIlluminateResponse());
                 } else {
@@ -221,6 +237,10 @@ class Response extends \yii\web\Response
      */
     protected function sendContent(): void
     {
+        if ($this->format === self::FORMAT_RAW) {
+            return;
+        }
+
         $response = $this->getIlluminateResponse();
         if ($response === null) {
             parent::sendContent();
