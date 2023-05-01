@@ -21,12 +21,13 @@
         "source": "https://github.com/yii2tech/illuminate"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.0",
         "ext-fileinfo": "*",
         "ext-pdo": "*",
-        "illuminate/console": "^8.0 || ^9.0 || ^10.0",
-        "illuminate/http": "^8.0 || ^9.0 || ^10.0",
-        "illuminate/mail": "^8.0 || ^9.0 || ^10.0",
+        "illuminate/console": "^9.0 || ^10.0",
+        "illuminate/http": "^9.0 || ^10.0",
+        "illuminate/mail": "^9.0 || ^10.0",
+        "illuminate/validation": "^9.0 || ^10.0",
         "illuminatech/array-factory": "^1.2.4",
         "yiisoft/yii2": "~2.0.14"
     },
@@ -45,7 +46,8 @@
         "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpro/grumphp": "^1.13",
         "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^7.5 || ^8.0 || ^9.3 || ^10.0.7"
+        "phpunit/phpunit": "^9.3 || ^10.0.7",
+        "yiisoft/yii2-swiftmailer": "^2.1"
     },
     "repositories": [
         {

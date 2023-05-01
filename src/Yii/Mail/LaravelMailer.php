@@ -9,6 +9,7 @@
 namespace Yii2tech\Illuminate\Yii\Mail;
 
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use yii\mail\BaseMailer;
 use Yii2tech\Illuminate\Mail\Message as LaravelMessage;
 
@@ -30,15 +31,14 @@ class LaravelMailer extends BaseMailer
      */
     protected function sendMessage($message): bool
     {
-        Mail::send(new LaravelMessage($message));
+        try {
+            return Mail::send(new LaravelMessage($message)) !== null;
+        } catch (TransportExceptionInterface $exception) {
+            logger()->error('Error on send mail.', ['message' => $message->toString()]);
 
-        $failures = Mail::failures();
-        if (count($failures) > 0) {
-            logger()->error('Error on send mail.', ['failures' => $failures, 'message' => $message->toString()]);
+            report($exception);
 
             return false;
         }
-
-        return true;
     }
 }

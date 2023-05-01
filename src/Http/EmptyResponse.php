@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 
 class EmptyResponse extends Response
 {
-    public function sendContent()
+    public function sendContent(): static
     {
         return $this;
     }

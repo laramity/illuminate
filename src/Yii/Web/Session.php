@@ -174,6 +174,7 @@ class Session extends \yii\web\Session
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         $this->open();
@@ -390,7 +391,7 @@ class Session extends \yii\web\Session
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         $this->open();
         $session = $this->getIlluminateSession()->all();
@@ -401,7 +402,7 @@ class Session extends \yii\web\Session
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         $this->open();
 
@@ -411,7 +412,7 @@ class Session extends \yii\web\Session
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $item)
+    public function offsetSet($offset, $item): void
     {
         $this->open();
 
@@ -421,7 +422,7 @@ class Session extends \yii\web\Session
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->open();
 

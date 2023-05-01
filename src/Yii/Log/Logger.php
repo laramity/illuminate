@@ -7,6 +7,8 @@
 
 namespace Yii2tech\Illuminate\Yii\Log;
 
+use Exception;
+use Throwable;
 use yii\base\Component;
 use yii\helpers\VarDumper;
 
@@ -42,6 +44,7 @@ class Logger extends \yii\log\Logger
 
     /**
      * {@inheritdoc}
+     * @param string|array|Throwable|Exception $message
      */
     public function log($message, $level, $category = 'application'): void
     {
@@ -51,7 +54,7 @@ class Logger extends \yii\log\Logger
         ];
         if (!is_string($message)) {
             // exceptions may not be serializable if in the call stack somewhere is a Closure
-            if ($message instanceof \Throwable) {
+            if ($message instanceof Throwable) {
                 $message = (string)$message;
             } else {
                 $message = VarDumper::export($message);
