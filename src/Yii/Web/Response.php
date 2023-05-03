@@ -15,6 +15,7 @@ use yii\base\InvalidConfigException;
 use yii\web\HeadersAlreadySentException;
 use Yii2tech\Illuminate\Http\EmptyResponse;
 use Yii2tech\Illuminate\Http\FileResponse;
+use Yii2tech\Illuminate\Http\StreamResponse;
 
 /**
  * Response fills up Laravel HTTP response instead of sending itself back to the user agent.
@@ -57,13 +58,13 @@ use Yii2tech\Illuminate\Http\FileResponse;
 class Response extends \yii\web\Response
 {
     /**
-     * @var \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|null related Laravel response.
+     * @var \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|StreamResponse|null related Laravel response.
      */
     private $_illuminateResponse;
 
     /**
      * @param  bool  $create whether to create a response, if it is empty.
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|null
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|StreamResponse|null
      */
     public function getIlluminateResponse(bool $create = false)
     {
@@ -75,7 +76,7 @@ class Response extends \yii\web\Response
     }
 
     /**
-     * @param  \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|null  $illuminateResponse
+     * @param  \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|EmptyResponse|FileResponse|StreamResponse|null  $illuminateResponse
      * @return static reference.
      */
     public function setIlluminateResponse($illuminateResponse = null): self
@@ -121,6 +122,53 @@ class Response extends \yii\web\Response
     /**
      * Creates default {@see $illuminateResponse} instance.
      *
+     * @return StreamResponse Stream response instance.
+     */
+    protected function createIlluminateStreamResponse(): StreamResponse
+    {
+        $streamCallback = function () {
+            if (is_callable($this->stream)) {
+                $data = call_user_func($this->stream);
+                foreach ($data as $datum) {
+                    echo $datum;
+                    flush();
+                }
+                return;
+            }
+
+            $chunkSize = 8 * 1024 * 1024; // 8MB per chunk
+
+            if (is_array($this->stream)) {
+                list($handle, $begin, $end) = $this->stream;
+
+                // only seek if stream is seekable
+                if ($this->isSeekable($handle)) {
+                    fseek($handle, $begin);
+                }
+
+                while (!feof($handle) && ($pos = ftell($handle)) <= $end) {
+                    if ($pos + $chunkSize > $end) {
+                        $chunkSize = $end - $pos + 1;
+                    }
+                    echo fread($handle, $chunkSize);
+                    flush(); // Free up memory. Otherwise large files will trigger PHP's memory limit.
+                }
+                fclose($handle);
+            } else {
+                while (!feof($this->stream)) {
+                    echo fread($this->stream, $chunkSize);
+                    flush();
+                }
+                fclose($this->stream);
+            }
+        };
+
+        return \Illuminate\Container\Container::getInstance()->make(StreamResponse::class, ['callback' => $streamCallback]);
+    }
+
+    /**
+     * Creates default {@see $illuminateResponse} instance.
+     *
      * @return EmptyResponse Laravel response instance.
      */
     protected function createIlluminateEmptyResponse(): EmptyResponse
@@ -157,21 +205,23 @@ class Response extends \yii\web\Response
      */
     protected function prepare(): void
     {
-        if ($this->stream === null) {
+//        if ($this->stream === null) {
             // avoid usage of response bridge for file sending, since it may cause PHP memory error.
-            $response = $this->getIlluminateResponse();
-            if ($response === null) {
-                if ($this->format === self::FORMAT_JSON && $this->data !== null) {
-                    $this->setIlluminateResponse($this->createIlluminateJsonResponse());
-                } elseif ($this->format === self::FORMAT_RAW) {
-                    $this->setIlluminateResponse($this->createIlluminateFileResponse());
-                } elseif ($this->content !== null || $this->data !== null) {
-                    $this->setIlluminateResponse($this->createIlluminateResponse());
-                } else {
-                    $this->setIlluminateResponse($this->createIlluminateEmptyResponse());
-                }
+        $response = $this->getIlluminateResponse();
+        if ($response === null) {
+            if ($this->format === self::FORMAT_JSON && $this->data !== null) {
+                $this->setIlluminateResponse($this->createIlluminateJsonResponse());
+            } elseif ($this->format === self::FORMAT_RAW && !empty($this->content)) {
+                $this->setIlluminateResponse($this->createIlluminateFileResponse());
+            } elseif ($this->format === self::FORMAT_RAW && $this->stream !== null) {
+                $this->setIlluminateResponse($this->createIlluminateStreamResponse());
+            } elseif ($this->content !== null || $this->data !== null) {
+                $this->setIlluminateResponse($this->createIlluminateResponse());
+            } else {
+                $this->setIlluminateResponse($this->createIlluminateEmptyResponse());
             }
         }
+//        }
 
         parent::prepare();
     }
@@ -271,5 +321,21 @@ class Response extends \yii\web\Response
             }
             throw $e;
         }
+    }
+
+    /**
+     * Checks if a stream is seekable
+     *
+     * @param $handle
+     * @return bool
+     */
+    protected function isSeekable($handle)
+    {
+        if (!is_resource($handle)) {
+            return true;
+        }
+
+        $metaData = stream_get_meta_data($handle);
+        return isset($metaData['seekable']) && $metaData['seekable'] === true;
     }
 }
