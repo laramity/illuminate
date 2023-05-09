@@ -41,6 +41,8 @@ use yii\db\Exception;
  */
 class Connection extends \yii\db\Connection
 {
+    public ?string $connectionName = null;
+
     /**
      * @var LaravelConnection|null Laravel DB connection instance.
      */
@@ -116,7 +118,7 @@ class Connection extends \yii\db\Connection
     public function getIlluminateConnection(): LaravelConnection
     {
         if ($this->_illuminateConnection === null) {
-            $this->_illuminateConnection = $this->defaultIlluminateConnection();
+            $this->_illuminateConnection = $this->createIlluminateConnection();
         }
 
         return $this->_illuminateConnection;
@@ -125,8 +127,8 @@ class Connection extends \yii\db\Connection
     /**
      * Defines default Laravel connection.
      */
-    protected function defaultIlluminateConnection(): LaravelConnection
+    protected function createIlluminateConnection(): LaravelConnection
     {
-        return DB::connection();
+        return DB::connection($this->connectionName);
     }
 }
