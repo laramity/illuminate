@@ -7,13 +7,14 @@
 
 namespace Yii2tech\Illuminate\Yii\Web;
 
-use Illuminate\Auth\AuthManager;
+use Illuminate\Auth\AuthManager as IlluminateAuthManager;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 use yii\db\BaseActiveRecord;
-use yii\web\IdentityInterface;
+use yii\web\IdentityInterface as YiiIdentityInterface;
 
 /**
  * User allows usage of the Laravel guard for authenticated user tracking.
@@ -30,9 +31,9 @@ use yii\web\IdentityInterface;
  * ];
  * ```
  *
- * @see \Illuminate\Auth\AuthManager
+ * @see IlluminateAuthManager
  *
- * @property \Illuminate\Auth\AuthManager $illuminateAuthManager related Laravel auth manager.
+ * @property IlluminateAuthManager $illuminateAuthManager related Laravel auth manager.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
@@ -42,22 +43,23 @@ class User extends \yii\web\User
     /**
      * @var string|null guard to be used while retrieving identity from Laravel auth manager.
      */
-    public $guard;
+    public ?string $guard;
 
     /**
-     * @var \yii\web\IdentityInterface|bool user identity.
+     * @var YiiIdentityInterface|bool user identity.
      */
-    private $_identity = false;
+    private YiiIdentityInterface|bool|null $_identity = false;
 
     /**
-     * @var \Illuminate\Auth\AuthManager related Laravel auth manager.
+     * @var IlluminateAuthManager|null related Laravel auth manager.
      */
-    private $_illuminateAuthManager;
+    private ?IlluminateAuthManager $_illuminateAuthManager = null;
 
     /**
      * {@inheritdoc}
+     * @throws BindingResolutionException
      */
-    public function getIdentity($autoRenew = true)
+    public function getIdentity($autoRenew = true): ?YiiIdentityInterface
     {
         if ($this->_identity === false) {
             $identity = $this->getIlluminateAuthManager()->guard($this->guard)->user();
@@ -82,9 +84,9 @@ class User extends \yii\web\User
     }
 
     /**
-     * @return \Illuminate\Auth\AuthManager
+     * @throws BindingResolutionException
      */
-    public function getIlluminateAuthManager(): AuthManager
+    public function getIlluminateAuthManager(): IlluminateAuthManager
     {
         if ($this->_illuminateAuthManager === null) {
             $this->_illuminateAuthManager = $this->defaultIlluminateAuthManager();
@@ -93,11 +95,7 @@ class User extends \yii\web\User
         return $this->_illuminateAuthManager;
     }
 
-    /**
-     * @param  \Illuminate\Auth\AuthManager  $authManager
-     * @return static self reference.
-     */
-    public function setIlluminateAuthManager(AuthManager $authManager): self
+    public function setIlluminateAuthManager(IlluminateAuthManager $authManager): self
     {
         $this->_illuminateAuthManager = $authManager;
 
@@ -105,15 +103,16 @@ class User extends \yii\web\User
     }
 
     /**
-     * @return \Illuminate\Auth\AuthManager default Laravel auth manager.
+     * @throws BindingResolutionException
      */
-    protected function defaultIlluminateAuthManager(): AuthManager
+    protected function defaultIlluminateAuthManager(): IlluminateAuthManager
     {
         return Container::getInstance()->make('auth');
     }
 
     /**
      * {@inheritdoc}
+     * @throws BindingResolutionException
      */
     public function switchIdentity($identity, $duration = 0): void
     {
@@ -128,7 +127,7 @@ class User extends \yii\web\User
         if ($identity instanceof BaseActiveRecord) {
             $id = $identity->getPrimaryKey();
         } else {
-            $id = $identity->id;
+            $id = $identity->getId();
         }
 
         $this->getIlluminateAuthManager()->guard($this->guard)->loginUsingId($id);
@@ -137,10 +136,10 @@ class User extends \yii\web\User
     /**
      * Converts Laravel identity into Yii one.
      *
-     * @param  mixed  $identity Laravel identity.
-     * @return IdentityInterface Yii compatible identity instance.
+     * @param  Model|Authenticatable|array|mixed  $identity Laravel identity.
+     * @return YiiIdentityInterface Yii compatible identity instance.
      */
-    protected function convertIlluminateIdentity($identity): IdentityInterface
+    protected function convertIlluminateIdentity(mixed $identity): YiiIdentityInterface
     {
         if ($identity instanceof Model) {
             $id = $identity->getKey();
@@ -155,8 +154,14 @@ class User extends \yii\web\User
             throw new RuntimeException('Unable to convert identity from "' . print_r($identity, true) . '"');
         }
 
+        if (isset($attributes['yii_id'])) {
+            $id = $attributes['yii_id'];
+            unset($attributes);
+        }
+
         $identityClass = $this->identityClass;
         if (!empty($attributes) && is_subclass_of($identityClass, BaseActiveRecord::class)) {
+            /** @var YiiIdentityInterface $record */
             $record = new $identityClass();
             call_user_func([$identityClass, 'populateRecord'], $record, $attributes);
 
