@@ -21,6 +21,8 @@ parameters:
     ignoreErrors:
 
     excludePaths:
+        - *.php.stub
+        - *.stub
 
     checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: true

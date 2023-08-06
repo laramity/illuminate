@@ -119,7 +119,7 @@ class User extends \yii\web\User
         $this->setIdentity($identity);
 
         if ($identity === null) {
-            $this->getIlluminateAuthManager()->guard($this->guard)->logout();
+            $this->getIlluminateAuthManager()->guard($this->guard)->logout(); //@phpstan-ignore-line
 
             return;
         }
@@ -130,7 +130,7 @@ class User extends \yii\web\User
             $id = $identity->getId();
         }
 
-        $this->getIlluminateAuthManager()->guard($this->guard)->loginUsingId($id);
+        $this->getIlluminateAuthManager()->guard($this->guard)->loginUsingId($id); //@phpstan-ignore-line
     }
 
     /**
@@ -143,7 +143,7 @@ class User extends \yii\web\User
     {
         if ($identity instanceof Model) {
             $id = $identity->getKey();
-            $attributes = $identity->getAttributes();
+            $attributes = $identity->toArray();
         } elseif ($identity instanceof Authenticatable) {
             $id = $identity->getAuthIdentifier();
             $attributes = [];
@@ -152,6 +152,10 @@ class User extends \yii\web\User
             $attributes = $identity;
         } else {
             throw new RuntimeException('Unable to convert identity from "' . print_r($identity, true) . '"');
+        }
+
+        if (is_a($this->identityClass, ArrayIdentity::class, true) && count($attributes)) {
+            return new ArrayIdentity(array_merge(['id' => $id], $attributes));
         }
 
         if (isset($attributes['yii_id'])) {

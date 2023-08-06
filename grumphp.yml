@@ -29,7 +29,7 @@ grumphp:
       whitelist_patterns: [ ]
       triggered_by: [ 'php' ]
       regexp_type: G
-#      match_word: false
+      match_word: true
     git_commit_message:
       allow_empty_message: false
       enforce_capitalized_subject: true
