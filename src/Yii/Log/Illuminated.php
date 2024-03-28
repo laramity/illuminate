@@ -53,6 +53,15 @@ trait Illuminated
         return $this;
     }
 
+    public function getLoggerChannel(): string
+    {
+        if (property_exists($this, 'channel') && !empty($this->channel)) {
+            return $this->channel;
+        }
+
+        return 'yii';
+    }
+
     /**
      * Returns default value for {@see $illuminateLogger}
      *
@@ -60,7 +69,7 @@ trait Illuminated
      */
     protected function defaultIlluminateLogger(): LoggerInterface
     {
-        return \Illuminate\Support\Facades\Log::getFacadeRoot()->channel('yii');
+        return \Illuminate\Support\Facades\Log::getFacadeRoot()->channel($this->getLoggerChannel());
     }
 
     /**

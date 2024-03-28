@@ -34,6 +34,8 @@ class Logger extends \yii\log\Logger
 {
     use Illuminated;
 
+    public $channel = 'yii';
+
     /**
      * {@inheritdoc}
      */

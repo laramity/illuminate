@@ -38,6 +38,8 @@ class Target extends \yii\log\Target
 {
     use Illuminated;
 
+    public $channel = 'yii';
+
     /**
      * {@inheritdoc}
      */
