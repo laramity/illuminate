@@ -24,5 +24,4 @@ parameters:
         - *.php.stub
         - *.stub
 
-    checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: true
