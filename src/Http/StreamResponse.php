@@ -15,5 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StreamResponse extends StreamedResponse
 {
-
+    public function __construct(?callable $callback = null, int $status = 200, array $headers = [])
+    {
+        parent::__construct($callback, $status, $headers);
+    }
 }
